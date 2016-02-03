@@ -1,7 +1,9 @@
 import numpy as np 
 import pandas as pd
 import seaborn as sns
+
 from sklearn.metrics import log_loss
+
 
 class Elo:
 	
@@ -161,12 +163,8 @@ class Elo:
 
 		plt.show()
 
-	def test_parameters(self):
-		k_range = [14,16,18]
-		home_field_range = [10,30,100]
-		mean_reversion_range=[0.6,0.7,0.8]
-		margin_beta_range = [11, 12, 13]
-
+	def test_parameters(self, k_range, home_field_range, mean_reversion_range, margin_beta_range):
+		
 		best = None
 		best_score = 10000000
 
@@ -178,14 +176,13 @@ class Elo:
 						not_draw = elo_df['home_result'] != 0.5
 						actual = list(elo_df['home_result'][not_draw])
 						predicted = list(elo_df['home_prob'][not_draw])
-						# print(predicted)
 						error = log_loss(actual, predicted)
 						if error < best_score:
 							best_score = error
 							best = k, home_field, mean_reversion, margin_beta
 						print(k, home_field, mean_reversion, margin_beta)
 						print(error)
-		print("BEST")
+		print("BEST HYPERPARAMETER SET")
 		print(best)
 		print(best_score)
 
@@ -194,11 +191,12 @@ my_elo = Elo()
 
 my_elo.add_data('afl.xlsx')
 
-# my_elo.run_show(16,110,0.70,12.2,teams=['Fremantle','Hawthorn','West Coast'])
+#  my_elo.run_show(16,110,0.70,12.2,teams=['Fremantle','Hawthorn','West Coast'])
 
-# my_elo.run_show(16,110,0.70,12.2)
+my_elo.run_show(16,200,0.6,20)
 
-my_elo.test_parameters()
+# my_elo.test_parameters(k_range = [14,16,18], home_field_range = [180,200,220],mean_reversion_range=[0,56, 0.58],margin_beta_range = [19,20,21,22])
+
 
 
 
