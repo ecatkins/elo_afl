@@ -123,8 +123,6 @@ class Elo:
 		return self.elo_df
 
 	def elo_calculation(self, k, point_differential,old_rank,opponent_rank,winners_rank,losers_rank,actual_result,home_field_advantage,margin_beta):
-
-	
 		if winners_rank == old_rank and home_field_advantage > 0:
 			winners_advantage = home_field_advantage
 		elif winners_rank == opponent_rank and home_field_advantage < 0:
