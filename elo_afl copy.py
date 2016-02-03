@@ -28,14 +28,8 @@ class Elo:
 		initial_data['away_result'] = 0 
 		return initial_data
 
-	def reset_ratings(self):
-		self.current_ratings = {"Adelaide":1500,"Brisbane":1500,"Carlton":1500,"Collingwood":1500,"Essendon":1500,"Fremantle":1500,"Geelong":1500,"Gold Coast":1500,"GWS Giants":1500,"Hawthorn":1500,"Melbourne":1500,"North Melbourne":1500,"Port Adelaide":1500,"Richmond":1500, "St Kilda":1500,"Sydney":1500,"West Coast":1500,"Western Bulldogs":1500}
-		self.historical_ratings = {"Adelaide":{"Date":[],"Elo":[]},"Brisbane":{"Date":[],"Elo":[]},"Carlton":{"Date":[],"Elo":[]},"Collingwood":{"Date":[],"Elo":[]},"Essendon":{"Date":[],"Elo":[]},"Fremantle":{"Date":[],"Elo":[]},"Geelong":{"Date":[],"Elo":[]},"Gold Coast":{"Date":[],"Elo":[]},"GWS Giants":{"Date":[],"Elo":[]},"Hawthorn":{"Date":[],"Elo":[]},"Melbourne":{"Date":[],"Elo":[]},"North Melbourne":{"Date":[],"Elo":[]},"Port Adelaide":{"Date":[],"Elo":[]},"Richmond":{"Date":[],"Elo":[]}, "St Kilda":{"Date":[],"Elo":[]},"Sydney":{"Date":[],"Elo":[]},"West Coast":{"Date":[],"Elo":[]},"Western Bulldogs":{"Date":[],"Elo":[]}}
-
-
 
 	def run_model(self, k,home_field,mean_reversion,margin_beta):
-		self.reset_ratings()
 		count = 0
 		df = self.original_df.copy()
 		
@@ -51,7 +45,15 @@ class Elo:
 				self.current_ratings[home_team] = new_home_ranking
 				new_away_ranking = 1500 + (self.current_ratings[away_team] - 1500) * mean_reversion
 				self.current_ratings[away_team] = new_away_ranking
+			count +=1 
+			# if count > 20:
+			# 	print(self.current_ratings)
+			# 	break
+
 		
+
+
+
 			# General
 			home_score = row['Home Score']
 			away_score = row['Away Score']
@@ -121,8 +123,7 @@ class Elo:
 		return self.elo_df
 
 	def elo_calculation(self, k, point_differential,old_rank,opponent_rank,winners_rank,losers_rank,actual_result,home_field_advantage,margin_beta):
-
-	
+		#Maybe add in home field advantage to both below
 		if winners_rank == old_rank and home_field_advantage > 0:
 			winners_advantage = home_field_advantage
 		elif winners_rank == opponent_rank and home_field_advantage < 0:
@@ -133,7 +134,7 @@ class Elo:
 			winners_advantage = home_field_advantage
 		
 
-		margin_multiplier = np.log(abs(point_differential)+1) * margin_beta / (0.001*(winners_rank + winners_advantage - losers_rank) + margin_beta)
+		margin_multiplier = np.log(abs(point_differential)+1) * margin_beta / (0.001*(winners_rank + home_field_advantage - losers_rank) + margin_beta)
 		expected_result = 1 / (1 + 10**((opponent_rank-(old_rank+home_field_advantage))/400))
 		new_rank = old_rank + k * margin_multiplier * (actual_result - expected_result)
 		return new_rank
