@@ -1,5 +1,5 @@
 # ELO AFL Rankings
-**Note** Still in development, but functional
+**Note:** Still in development, but functional
 
 The [Elo rating system] (https://en.wikipedia.org/wiki/Elo_rating_system) is a method for calculating the relative skill levels of players in competitor-versus-competitor games such as chess.
 
