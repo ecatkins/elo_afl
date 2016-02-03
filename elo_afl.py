@@ -187,13 +187,13 @@ class Elo:
 		print(best_score)
 
 
-my_elo = Elo()
+# my_elo = Elo()
 
-my_elo.add_data('afl.xlsx')
+# my_elo.add_data('afl.xlsx')
 
-#  my_elo.run_show(16,110,0.70,12.2,teams=['Fremantle','Hawthorn','West Coast'])
+# my_elo.run_show(16,110,0.70,12.2,teams=['Fremantle','Melbourne','West Coast'])
 
-my_elo.run_show(16,200,0.6,20)
+# my_elo.run_show(16,200,0.6,20)
 
 # my_elo.test_parameters(k_range = [14,16,18], home_field_range = [180,200,220],mean_reversion_range=[0,56, 0.58],margin_beta_range = [19,20,21,22])
 
