@@ -25,7 +25,7 @@ elo.add_data('afl.xlsx')
 ```python
 import elo_afl as e
 elo = e.Elo()
-elo.run_show(k=16,home_field=220,mean_reversion = 0.6, margin_beta_range = 20,teams=['Fremantle',Hawthorn','West Coast'])
+elo.run_show(k=16,home_field=220,mean_reversion = 0.6, margin_beta = 20,teams=['Fremantle',Hawthorn','West Coast'])
 ```
 * Test hyper-parameter combinations
 ```python
