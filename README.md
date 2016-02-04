@@ -8,7 +8,7 @@ Inspired by the work of FiveThirtyEight that calculate elo ratings for [NFL] (ht
 Data Source = [Australia Sports Betting] (http://www.aussportsbetting.com/data/historical-afl-results-and-odds-data/)
 
 ### Features
-* Tracks ELO ratings for the AFL from 2011-2015
+* Tracks ELO ratings for the AFL from 2010-2015
 * ELO ratings can be used to estimate the win probabilities for a given game
 * I have created a custom hyper-parameter optimisation using cross-log entropy (predicted win probability versus actual result) to adjust the parameters used by FiveThirtyEight for NFL as these are different for every sport
 * Charting method to visualise historical elo ratings
