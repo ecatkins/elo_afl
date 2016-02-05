@@ -245,6 +245,8 @@ class Elo:
 		elo_df = self.run_model(k,home_field,mean_reversion,margin_smoothing)
 		elo_ratings = self.current_ratings
 		elo_historical = self.historical_ratings
+		plt.figure()
+		plt.title("Historical ELO Ratings")
 		if teams:
 			for team in teams:
 				plt.plot(elo_historical[team]['Date'],elo_historical[team]['Elo'],label=team)
@@ -298,15 +300,15 @@ class Elo:
 		return best_parameters
 
 
-my_elo = Elo()
+# my_elo = Elo()
 
-my_elo.add_data('afl.xlsx')
+# my_elo.add_data('afl.xlsx')
 
 # my_elo.run_plot(16,110,0.70,12.2,teams=['Fremantle','Melbourne','West Coast'])
 
 # my_elo.run_plot(16,200,0.6,20)
 
-my_elo.test_parameters(k_range = [14,16], home_field_range = [180,200],mean_reversion_range=[0.56, 0.58],margin_smoothing_range = [19,20])
+# my_elo.test_parameters(k_range = [14,16], home_field_range = [180,200],mean_reversion_range=[0.56, 0.58],margin_smoothing_range = [19,20])
 
 
 
