@@ -25,11 +25,11 @@ elo.add_data('afl.xlsx')
 ```python
 import elo_afl as e
 elo = e.Elo()
-elo.run_plot(k=16,home_field=220,mean_reversion = 0.6, margin_beta = 20,teams=['Fremantle',Hawthorn','West Coast'])
+elo.run_plot(k=16,home_field=220,mean_reversion = 0.6, margin_smoothing = 20,teams=['Fremantle',Hawthorn','West Coast'])
 ```
 * Test hyper-parameter combinations
 ```python
-elo.test_parameters(k_range = [14,16,18], home_field_range = [180,200,220],mean_reversion_range=[0,56, 0.58],margin_beta_range = [19,20,21,22])
+elo.test_parameters(k_range = [14,16,18], home_field_range = [180,200,220],mean_reversion_range=[0,56, 0.58],margin_smoothing = [19,20,21,22])
 ```
 ### Screenshots 
 ![alt text](https://github.com/ecatkins/elo_afl/blob/master/figure_1.png "Logo Title Text 1")
