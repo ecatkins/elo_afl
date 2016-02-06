@@ -12,6 +12,7 @@ Data Source = [Australia Sports Betting] (http://www.aussportsbetting.com/data/h
 * ELO ratings can be used to estimate the win probabilities for a given game
 * I have created a custom hyper-parameter optimisation using cross-log entropy (predicted win probability versus actual result) to adjust the parameters used by FiveThirtyEight for NFL as these are different for every sport
 * Charting method to visualise historical elo ratings
+* Currently developing interactive bokeh plots with tooltips
 
 ### Instructions
 * Clone directory
