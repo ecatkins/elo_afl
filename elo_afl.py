@@ -233,7 +233,7 @@ class Elo:
 
 	def run_plot(self,k,home_field,mean_reversion,margin_smoothing,teams=False):
 		''' Runs the model and plots the results for all or subset of teams
-		given certain parameters
+		given certain parameters. Also returns bokeh html file
 		Args:
 			k: the main leverage point to customise the algorithm for different domains
 			home_field: the point advantage given to the home team
@@ -247,23 +247,53 @@ class Elo:
 		elo_historical = self.historical_ratings
 		plt.figure()
 		plt.title("Historical ELO Ratings")
-		if teams:
-			for team in teams:
-				plt.plot(elo_historical[team]['Date'],elo_historical[team]['Elo'],label=team)
-				plt.legend(loc=9, bbox_to_anchor=(0.5, -0.1), ncol=4)
-		else:
-			for team in elo_historical:
-				plt.plot(elo_historical[team]['Date'],elo_historical[team]['Elo'],label=team)
-				plt.legend(loc=9, bbox_to_anchor=(0.5, -0.1), ncol=4)
 		
-		count = 0
+		if not teams:
+			teams = [team for team in elo_historical]
+
+		for team in teams:
+			plt.plot(elo_historical[team]['Date'],elo_historical[team]['Elo'],label=team)
+			plt.legend(loc=9, bbox_to_anchor=(0.5, -0.1), ncol=4)
 		
 		### Check to ensure that the average elo rating is 1500
+		count = 0
 		for team in elo_historical:
 			count += elo_ratings[team]
 		print(count/18)
 
 		plt.show()
+
+		# Test bokeh
+		from bokeh.plotting import figure, show, output_file
+		from bokeh.models import HoverTool
+
+		output_file("elo_chart.html")
+
+		num_lines = len(teams)
+		TOOLS = 'box_zoom,box_select,resize,reset,hover'
+		# TOOLS = 'hover'
+		p = figure(width=1000, height = 700, x_axis_type = 'datetime',tools=TOOLS, title = "Historical ELO ratings", title_text_font_size='20pt')
+		mypalette = ['#3366FF','#CC33FF','#00AD00','#002EB8','#33FFCC','#F5B800','#33FF66','#CCFF33','#6633FF','#FF33CC','#003DF5','#FF3366','#B88A00','#FF6633','#66FF33','#FFCC33','#FF0033','#000033']
+		for index, team in enumerate(teams):
+			
+			x = elo_historical[team]['Date']
+			y = elo_historical[team]['Elo']
+			p.line(x, [int(i) for i in y], line_width = 3, line_color = mypalette[index], legend= team)
+			p.circle(x, [int(i) for i in y], size=8, alpha=0)
+			hover = p.select(dict(type=HoverTool))
+
+			hover.tooltips = [('Elo Ranking','$y')]
+
+
+		p.legend.label_text_font = 'verdana'
+		p.legend.location ='bottom_left'
+		p.axis.major_tick_line_color = None
+		p.axis[0].ticker.num_minor_ticks = 0  # turn off minor ticks
+		p.axis[1].ticker.num_minor_ticks = 0
+
+		hover = p.select(dict(type=HoverTool))
+
+		# show(p)
 
 	def test_parameters(self, k_range, home_field_range, mean_reversion_range, margin_smoothing_range):
 		''' Employs grid search across a parameter space to minimise a log loss error function
@@ -300,11 +330,11 @@ class Elo:
 		return best_parameters
 
 
-# my_elo = Elo()
+my_elo = Elo()
 
-# my_elo.add_data('afl.xlsx')
+my_elo.add_data('afl.xlsx')
 
-# my_elo.run_plot(16,110,0.70,12.2,teams=['Fremantle','Melbourne','West Coast'])
+my_elo.run_plot(16,110,0.70,12.2,teams=['Fremantle','Melbourne','St Kilda','Geelong','Hawthorn'])
 
 # my_elo.run_plot(16,200,0.6,20)
 
