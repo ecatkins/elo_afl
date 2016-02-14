@@ -3,6 +3,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import log_loss
+from bokeh.plotting import figure, show, output_file, ColumnDataSource
+from bokeh.models import HoverTool
 
 
 class Elo:
@@ -236,8 +238,9 @@ class Elo:
 			home_field: the point advantage given to the home team
 			mean_reversion: mean reversion factor for each team after the season ends
 			margin_smoothing: smoothing parameter for the margin multiplier
-			teams: [optional] list of a subset of teams to chart
-
+			teams: [optional] list of a subset of teams to chart	
+		Returns:
+			The complete df
 		'''
 		self.elo_df = self.run_model(k,home_field,mean_reversion,margin_smoothing)
 
@@ -267,18 +270,13 @@ class Elo:
 		elo_df = self.elo_df
 
 		if not teams:
-			teams = [team for team in elo_historical]
-
-		# Test bokeh
-		from bokeh.plotting import figure, show, output_file, ColumnDataSource
-		from bokeh.models import HoverTool
+			teams = [team for team in elo_historical]		
 
 		if return_html == True:
 			output_file("elo_chart.html")
 
 		num_lines = len(teams)
 		TOOLS = 'box_zoom,box_select,resize,reset,hover,previewsave'
-		# TOOLS = 'hover'
 		p = figure(width=700, height = 500, x_axis_type = 'datetime',tools=TOOLS, title = "Historical ELO ratings", title_text_font_size='20pt')
 		mypalette = ['#3366FF','#CC33FF','#00AD00','#002EB8','#33FFCC','#F5B800','#33FF66','#CCFF33','#6633FF','#FF33CC','#003DF5','#FF3366','#B88A00','#FF6633','#66FF33','#FFCC33','#FF0033','#000033']
 		
