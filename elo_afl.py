@@ -197,9 +197,7 @@ class Elo:
 			# Assign new rankings
 			df = self.assign_new_rankings(row_index, row, df, home_team, new_home_rank, away_team, new_away_rank)
 
-		self.elo_df = df
-
-		return self.elo_df
+		return df
 
 	def elo_calculation(self, k, point_differential,old_rank,opponent_rank,winners_rank,losers_rank,binary_result,home_field,margin_smoothing):
 		''' Calculates the new elo ranking for a team
@@ -231,9 +229,8 @@ class Elo:
 		new_rank = old_rank + k * margin_multiplier * (binary_result - expected_result)
 		return new_rank
 
-	def run_plot(self,k,home_field,mean_reversion,margin_smoothing,teams=False):
-		''' Runs the model and plots the results for all or subset of teams
-		given certain parameters. Also returns bokeh html file
+	def fit(self, k, home_field, mean_reversion, margin_smoothing):
+		''' Runs the model 
 		Args:
 			k: the main leverage point to customise the algorithm for different domains
 			home_field: the point advantage given to the home team
@@ -242,9 +239,16 @@ class Elo:
 			teams: [optional] list of a subset of teams to chart
 
 		'''
-		elo_df = self.run_model(k,home_field,mean_reversion,margin_smoothing)
+		self.elo_df = self.run_model(k,home_field,mean_reversion,margin_smoothing)
+
+		return self.elo_df
+		
+
+	def plotMat(self, teams = False):
 		elo_ratings = self.current_ratings
 		elo_historical = self.historical_ratings
+		elo_df = self.elo_df
+
 		plt.figure()
 		plt.title("Historical ELO Ratings")
 		
@@ -252,37 +256,44 @@ class Elo:
 			teams = [team for team in elo_historical]
 
 		for team in teams:
-			plt.plot(elo_historical[team]['Date'],elo_historical[team]['Elo'],label=team)
+			plt.plot(elo_historical[team]['Date'], elo_historical[team]['Elo'],label=team)
 			plt.legend(loc=9, bbox_to_anchor=(0.5, -0.1), ncol=4)
 		
-		### Check to ensure that the average elo rating is 1500
-		count = 0
-		for team in elo_historical:
-			count += elo_ratings[team]
-		print(count/18)
-
 		plt.show()
 
+	def plotBokeh(self, teams = False, return_html = False):
+		elo_ratings = self.current_ratings
+		elo_historical = self.historical_ratings
+		elo_df = self.elo_df
+
+		if not teams:
+			teams = [team for team in elo_historical]
+
 		# Test bokeh
-		from bokeh.plotting import figure, show, output_file
+		from bokeh.plotting import figure, show, output_file, ColumnDataSource
 		from bokeh.models import HoverTool
 
-		output_file("elo_chart.html")
+		if return_html == True:
+			output_file("elo_chart.html")
 
 		num_lines = len(teams)
-		TOOLS = 'box_zoom,box_select,resize,reset,hover'
+		TOOLS = 'box_zoom,box_select,resize,reset,hover,previewsave'
 		# TOOLS = 'hover'
-		p = figure(width=1000, height = 700, x_axis_type = 'datetime',tools=TOOLS, title = "Historical ELO ratings", title_text_font_size='20pt')
+		p = figure(width=700, height = 500, x_axis_type = 'datetime',tools=TOOLS, title = "Historical ELO ratings", title_text_font_size='20pt')
 		mypalette = ['#3366FF','#CC33FF','#00AD00','#002EB8','#33FFCC','#F5B800','#33FF66','#CCFF33','#6633FF','#FF33CC','#003DF5','#FF3366','#B88A00','#FF6633','#66FF33','#FFCC33','#FF0033','#000033']
+		
 		for index, team in enumerate(teams):
-			
 			x = elo_historical[team]['Date']
 			y = elo_historical[team]['Elo']
-			p.line(x, [int(i) for i in y], line_width = 3, line_color = mypalette[index], legend= team)
-			p.circle(x, [int(i) for i in y], size=8, alpha=0)
+			y = [int(i) for i in y]
+			source = ColumnDataSource(data=dict(x=x,y=y,label = [team for i in x]))
+			p.line('x','y', line_width = 3, line_color = mypalette[index], legend = team, source = source)
+			p.circle('x','y', size=8, alpha=0, source = source)
+
+			# p.circle(x, [int(i) for i in y], size=8, alpha=0)
 			hover = p.select(dict(type=HoverTool))
 
-			hover.tooltips = [('Elo Ranking','$y')]
+			hover.tooltips = [('Team','@label'),('Elo Ranking','@y')]
 
 
 		p.legend.label_text_font = 'verdana'
@@ -293,7 +304,10 @@ class Elo:
 
 		hover = p.select(dict(type=HoverTool))
 
-		# show(p)
+		show(p)
+
+		return p
+
 
 	def test_parameters(self, k_range, home_field_range, mean_reversion_range, margin_smoothing_range):
 		''' Employs grid search across a parameter space to minimise a log loss error function
@@ -313,15 +327,16 @@ class Elo:
 			for home_field in home_field_range:
 				for mean_reversion in mean_reversion_range:
 					for margin_smoothing in margin_smoothing_range:
-						elo_df = self.run_model(k, home_field, mean_reversion, margin_smoothing)
+						elo_df = self.fit(k, home_field, mean_reversion, margin_smoothing)
 						not_draw = elo_df['home_result'] != 0.5
 						actual = list(elo_df['home_result'][not_draw])
 						predicted = list(elo_df['home_prob'][not_draw])
+						predicted = [[1-x,x] for x in predicted]
 						error = log_loss(actual, predicted)
 						if error < best_score:
 							best_score = error
 							best_parameters = k, home_field, mean_reversion, margin_smoothing
-						print("K: {}, Home Field: {}, Mean Reversion: {}, Margin Smoothing: {}".format(k, home_field, mean_reversion, margin_smoothing))
+						print("\nK: {}, Home Field: {}, Mean Reversion: {}, Margin Smoothing: {}".format(k, home_field, mean_reversion, margin_smoothing))
 						print("Error value..... {}".format(error))
 		print("\n==============================")
 		print("BEST HYPERPARAMETER SET")
@@ -330,15 +345,19 @@ class Elo:
 		return best_parameters
 
 
-my_elo = Elo()
+# my_elo = Elo()
 
-my_elo.add_data('afl.xlsx')
+# my_elo.add_data('afl.xlsx')
 
-my_elo.run_plot(16,110,0.70,12.2,teams=['Fremantle','Melbourne','St Kilda','Geelong','Hawthorn'])
+# my_elo.fit(16,110,0.70,12.2)
+
+# my_elo.plotMat(teams=['Fremantle','Melbourne','West Coast','Geelong','Hawthorn'])
+
+# my_elo.plotBokeh(teams=['Fremantle','Melbourne','West Coast','Geelong','Hawthorn'])
 
 # my_elo.run_plot(16,200,0.6,20)
 
-# my_elo.test_parameters(k_range = [14,16], home_field_range = [180,200],mean_reversion_range=[0.56, 0.58],margin_smoothing_range = [19,20])
+# my_elo.test_parameters(k_range = [12,13,14,15,16], home_field_range = [100,125,150,175,200],mean_reversion_range=[0.5,0.6,0.7],margin_smoothing_range = [16,18,20])
 
 
 
