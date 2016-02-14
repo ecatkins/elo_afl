@@ -248,6 +248,10 @@ class Elo:
 		
 
 	def plotMat(self, teams = False):
+		''' Creates a matplotlib plot of the historical elo ratings
+		Args:
+			teams: [optional] a list containing the teams to plot
+		'''
 		elo_ratings = self.current_ratings
 		elo_historical = self.historical_ratings
 		elo_df = self.elo_df
@@ -265,6 +269,12 @@ class Elo:
 		plt.show()
 
 	def plotBokeh(self, teams = False, return_html = False):
+		''' Creates an interactive bokeh plot of the historical elo ratings
+		Args:
+			teams: [optional] a list containing the teams to plot
+		Returns:
+			The bokeh object
+		'''
 		elo_ratings = self.current_ratings
 		elo_historical = self.historical_ratings
 		elo_df = self.elo_df
@@ -287,12 +297,8 @@ class Elo:
 			source = ColumnDataSource(data=dict(x=x,y=y,label = [team for i in x]))
 			p.line('x','y', line_width = 3, line_color = mypalette[index], legend = team, source = source)
 			p.circle('x','y', size=8, alpha=0, source = source)
-
-			# p.circle(x, [int(i) for i in y], size=8, alpha=0)
 			hover = p.select(dict(type=HoverTool))
-
 			hover.tooltips = [('Team','@label'),('Elo Ranking','@y')]
-
 
 		p.legend.label_text_font = 'verdana'
 		p.legend.location ='bottom_left'
